@@ -1,6 +1,6 @@
 import './sass/main.scss';
 import fetchCountries from './js/fetchCountries.js';
-import notif from './js/notification.js'
+import error from './js/notification.js';
 import countryCardTpl from './templates/country-card.hbs';
 import countryListTpl from './templates/country-list.hbs';
 import debounce  from 'lodash.debounce';
@@ -11,43 +11,39 @@ const refs = {
 }
 
 refs.searchCountry.addEventListener('input', debounce((onSearch), 500));
-// refs.searchCountry.addEventListener('input', onSearch) ;
 
 function onSearch(event) {
   const country = event.target.value.trim();
   refs.searchCountry.value = country;
 
-  clearCountryCard();
+  renderCountryCard('');
 
-  // if (country === '') {
-  //   return
-  // }
+  if (!country) return;
 
   fetchCountries(country)
-    .then(renderCountryCard)
+    .then(createMarkup)
     .catch(error => console.log(error));
-    //.finally(() => country.reset());
+  }
+
+function renderCountryCard(content) {
+refs.cardContainer.innerHTML = content;
 }
 
-function renderCountryCard(result) {
-  if (result.length > 2 && result.length < 10) {
+function createMarkup(result) {
+    if (result.length > 2 && result.length < 10) {
     const markup = countryListTpl({ countries: result });
-    refs.cardContainer.innerHTML = markup;
-  }
+     return renderCountryCard(markup);
+   }
 
   if (result.length === 1) {
     const markup = countryCardTpl(result[0]);
-    refs.cardContainer.innerHTML = markup;
+    return renderCountryCard(markup);
   }
 
-  // if (result.length > 10) {
-  //   alert({
-  //     text: 'Error!!!'
-  //   });
-  // }
-
+  if (result.length > 10) {
+   error({
+        text: 'Too many matches found. Please enter a more specific query!',
+        delay: 1000,
+      })
+  }  
 }
-
-function clearCountryCard() {
-  refs.cardContainer.innerHTML = '';
-  } 
