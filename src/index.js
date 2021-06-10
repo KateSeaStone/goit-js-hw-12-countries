@@ -3,7 +3,7 @@ import fetchCountries from './js/fetchCountries.js';
 import error from './js/notification.js';
 import countryCardTpl from './templates/country-card.hbs';
 import countryListTpl from './templates/country-list.hbs';
-import debounce  from 'lodash.debounce';
+import debounce from 'lodash.debounce';
 
 const refs = {
   cardContainer: document.querySelector('.js-card-container'),
@@ -23,17 +23,17 @@ function onSearch(event) {
   fetchCountries(country)
     .then(createMarkup)
     .catch(error => console.log(error));
-  }
+}
 
 function renderCountryCard(content) {
-refs.cardContainer.innerHTML = content;
+  refs.cardContainer.innerHTML = content;
 }
 
 function createMarkup(result) {
-    if (result.length > 2 && result.length < 10) {
+  if (result.length >= 2 && result.length <= 10) {
     const markup = countryListTpl({ countries: result });
-     return renderCountryCard(markup);
-   }
+    return renderCountryCard(markup);
+  }
 
   if (result.length === 1) {
     const markup = countryCardTpl(result[0]);
@@ -41,9 +41,9 @@ function createMarkup(result) {
   }
 
   if (result.length > 10) {
-   error({
-        text: 'Too many matches found. Please enter a more specific query!',
-        delay: 1000,
-      })
-  }  
+    error({
+      text: 'Too many matches found. Please enter a more specific query!',
+      delay: 1000,
+    })
+  }
 }
